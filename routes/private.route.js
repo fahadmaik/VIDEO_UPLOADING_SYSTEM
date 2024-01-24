@@ -66,13 +66,16 @@ adminRouter.delete("/deletepost/:postId", async (req, res) => {
     const { id: userId } = req.authenticatedUser;
 
     const postRepository = getRepository(Post);
-    const deletedPost = await postRepository.findOne({ where: { id: postId } });
+    const deletedPost = await postRepository.findOne({
+      where: { id: postId },
+      relations: ["user"],
+    });
 
     if (!deletedPost) {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    if (deletedPost.user !== userId) {
+    if (deletedPost.user && deletedPost.user.id !== userId) {
       return res
         .status(403)
         .json({ message: "You are not authorized to delete this post" });
