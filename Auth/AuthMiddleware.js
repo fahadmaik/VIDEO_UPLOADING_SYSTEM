@@ -3,7 +3,6 @@ const { getRepository } = require("typeorm");
 const User = require("../models/user.model.js");
 
 const authMiddleware = async (req, res, next) => {
-  console.log("auth middleware ");
   const token = req.headers.token;
 
   if (!token) {

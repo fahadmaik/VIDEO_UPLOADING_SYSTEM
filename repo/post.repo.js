@@ -5,7 +5,7 @@ let postRepository;
 
 const initializePostRepository = async () => {
   try {
-    await require("../config/database.connection"); // Ensure database connection is established
+    await require("../config/database.connection"); 
     postRepository = getRepository(Post);
   } catch (error) {
     console.error("Error initializing post repository:", error);

@@ -5,7 +5,7 @@ let userRepository;
 
 const initializeUserRepository = async () => {
   try {
-    await require("../config/database.connection"); // Ensure database connection is established
+    await require("../config/database.connection");
     userRepository = getRepository(User);
   } catch (error) {
     console.error("Error initializing user repository:", error);
