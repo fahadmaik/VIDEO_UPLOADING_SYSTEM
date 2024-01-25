@@ -6,25 +6,37 @@ const upload = require("../multer/multerMiddleware.js");
 const adminRouter = Router();
 adminRouter.use(authMiddleware);
 adminRouter.post("/createpost", upload.single("filepath"), async (req, res) => {
-  const { title, body } = req.body;
-  const { id: userId } = req.authenticatedUser;
-  const postRepository = getRepository(Post);
-  let FileUrl =
-    req.protocol +
-    "://" +
-    req.hostname +
-    ":3000" +
-    "/videos" +
-    "/" +
-    req.file.filename;
-  const Newposts = await postRepository.create({
-    title,
-    body,
-    user: userId,
-    filePath: FileUrl,
-  });
-  await postRepository.save(Newposts);
-  res.status(201).json({ Newposts });
+  try {
+    const { title, body } = req.body;
+    if (!title || !body || !req.file) {
+      res
+        .status(400)
+        .json({ message: "Title, body, and file are mandatory fields!" });
+      return;
+    }
+
+    const { id: userId } = req.authenticatedUser;
+    const postRepository = getRepository(Post);
+    let FileUrl =
+      req.protocol +
+      "://" +
+      req.hostname +
+      ":3000" +
+      "/videos" +
+      "/" +
+      req.file.filename;
+    const Newposts = await postRepository.create({
+      title,
+      body,
+      user: userId,
+      filePath: FileUrl,
+    });
+    await postRepository.save(Newposts);
+    res.status(201).json({ Newposts });
+  } catch (err) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 adminRouter.put("/updatepost/:postId", async (req, res) => {
   try {

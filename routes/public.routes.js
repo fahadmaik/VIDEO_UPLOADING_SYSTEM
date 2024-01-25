@@ -5,44 +5,16 @@ const User = require("../models/user.model.js");
 const Post = require("../models/post.js");
 const Router = require("express");
 const publicRoutes = Router();
-
-publicRoutes.get("/posts", async (req, res) => {
-  try {
-    const postRepository = getRepository(Post);
-    const posts = await postRepository.find();
-
-    if (posts.length > 0) {
-      res.json(posts);
-    } else {
-      res.json({ message: "No posts found" });
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
-publicRoutes.get("/posts/:id", async (req, res) => {
-  try {
-    const postId = req.params.id;
-    const postRepository = getRepository(Post);
-    const post = await postRepository.findOne({ where: { id: postId } });
-
-    if (post) {
-      res.json(post);
-    } else {
-      res.json({ message: "No post with specified id was found" });
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
 publicRoutes.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    if (!username || !email || !password) {
+      res.status(400).json({
+        message: "All fields username, email, password are mandatory",
+      });
+      return;
+    }
     const encryptedPassword = await hash(password, 10);
     const userRepository = getRepository(User);
     const user = userRepository.create({
@@ -59,11 +31,15 @@ publicRoutes.post("/register", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
 publicRoutes.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    if (!username || !password) {
+      res
+        .status(400)
+        .json({ message: "usernameandpassword are mandatory for login" });
+    }
     const userRepository = getRepository(User);
     const user = await userRepository.findOne({ where: { username } });
 
@@ -84,6 +60,39 @@ publicRoutes.post("/login", async (req, res) => {
       process.env.JWT_SECRET
     );
     res.status(200).json({ token });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+publicRoutes.get("/posts", async (req, res) => {
+  try {
+    const postRepository = getRepository(Post);
+    const posts = await postRepository.find();
+
+    if (posts.length > 0) {
+      res.json(posts);
+    } else {
+      res.json({ message: "No posts found" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: "Internal Server Error" });
+  }
+});
+
+publicRoutes.get("/posts/:id", async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const postRepository = getRepository(Post);
+    const post = await postRepository.findOne({ where: { id: postId } });
+
+    if (post) {
+      res.json(post);
+    } else {
+      res.json({ message: "Sorry, we couldn't find the requested post" });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal Server Error" });
