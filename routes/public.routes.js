@@ -41,7 +41,9 @@ publicRoutes.post("/login", async (req, res) => {
         .json({ message: "usernameandpassword are mandatory for login" });
     }
     const userRepository = getRepository(User);
-    const user = await userRepository.findOne({ where: { username } });
+    const user = await userRepository.findOne({
+      where: { username: username },
+    });
 
     if (!user) {
       res.status(401).json({ message: "User not found" });
